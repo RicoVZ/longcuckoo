@@ -289,15 +289,6 @@ class PacketFilter(object):
 
 class ElasticNetwork(Auxiliary):
 
-    def __init__(self):
-        Auxiliary.__init__(self)
-        self.running = True
-        self.pcap_path = ""
-        self.pcap_offset = 0
-        self.max_per_bulk = 250
-        self.pcap_header = None
-        self.es = None
-
     def _store_bulk_es(self, collection):
         helpers.bulk(self.es, collection)
         log.debug("Stored set of filtered packets in Elasticsearch")
@@ -352,6 +343,13 @@ class ElasticNetwork(Auxiliary):
 
     def start(self):
         log.info("ElasticNetwork auxiliary module started")
+
+        self.running = True
+        self.pcap_path = ""
+        self.pcap_offset = 0
+        self.max_per_bulk = 250
+        self.pcap_header = None
+        self.es = None
 
         conf = Config("auxiliary")
         es_server = str(conf.elasticnetwork.elasticsearch_server)

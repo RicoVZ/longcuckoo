@@ -12,12 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class FindHeartbeat(Auxiliary):
-    def __init__(self):
-        Auxiliary.__init__(self)
-        self.running = True
-        self.es = None
-        self.summarize_handler = SummarizeHandler()
-        self.filter_handler = FilterHandler(self.task.experiment_id)
 
     def _run_thread(self):
 
@@ -65,6 +59,11 @@ class FindHeartbeat(Auxiliary):
 
     def start(self):
         log.info("FindHeartbeat auxiliary module started")
+
+        self.running = True
+        self.es = None
+        self.summarize_handler = SummarizeHandler()
+        self.filter_handler = FilterHandler(self.task.experiment_id)
 
         conf = Config("auxiliary")
 
