@@ -1,0 +1,28 @@
+{
+	"mappings": {
+		"heartbeats": {
+			"properties": {
+				"heartbeats": {
+					"properties": {
+						"stream_keys": {"type": "string"},
+						"dst": {"type": "string"},
+						"likely": {
+							"properties": {
+								"dst": {"type": "string"},
+								"stream_keys": {"type": "string"},
+								"matches": {
+									"properties": {
+										"match_type": {"type": "string"},
+										"value": {"type": "string"}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			
+		}
+	}
+}

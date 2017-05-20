@@ -4,6 +4,7 @@
 
 import binascii
 import hashlib
+import json
 import logging
 import os
 import subprocess
@@ -269,3 +270,47 @@ class File:
         infos["yara"] = self.get_yara()
 
         return infos
+
+
+class NetworkData(object):
+    def __init__(self):
+        # List of attributes that will be stored. This list will vary based
+        # on the type of data found in pcap files. For example, an http field
+        # might be added by self.add_attr
+        self._fields = [
+            "src", "dst",
+            "sport", "dport", "length", "protocol",
+            "data"
+        ]
+        self.timestamp = None
+        self.src = None
+        self.dst = None
+        self.sport = None
+        self.dport = None
+        self.length = None
+        self.protocol = None
+        self.data = None
+
+    def add_attr(self, field, data):
+        self._fields.append(field)
+        setattr(self, field, data)
+
+    def get_json(self, index, doc, exp_id, task_id):
+
+        try:
+            timestamp = long(self.timestamp)
+        except ValueError:
+            timestamp = self.timestamp
+
+        fields_json = {
+            "_index": index,
+            "_type": doc,
+            "exp_id": exp_id,
+            "task_id": task_id,
+            "timestamp": timestamp
+        }
+
+        for field in self._fields:
+            fields_json[field] = getattr(self, field)
+
+        return json.dumps(fields_json, encoding="latin1")

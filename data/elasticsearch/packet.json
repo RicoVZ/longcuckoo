@@ -1,0 +1,78 @@
+{
+	"mappings": {
+		"packet": {
+			"properties": {
+				"timestamp": {
+					"type": "long"
+				},
+				"task_id": {
+					"type": "long"
+				},
+				"exp_id": {
+					"type": "long"
+				},
+				"src": {
+					"type": "string"
+				},
+				"dst": {
+					"type": "string"
+				},
+				"dport": {
+					"type": "long"
+				},
+				"sport": {
+					"type": "long"
+				},
+				"protocol": {
+					"type": "string"
+				},
+				"length": {
+					"type": "long"
+				},
+				"data": {
+					"type": "string"
+				},
+				"dns_query": {
+					"type": "string"
+				},
+				"query_type": {
+					"type": "string"
+				},
+				"dns_answer": {
+					"properties": {
+						"data": {"type": "string"},
+						"type": {"type": "string"}
+					}
+				},
+				"body_sent": {
+					"type": "string"
+				},
+				"uri_sent": {
+					"type": "string"
+				},
+				"body_recv": {
+					"type": "string"
+				},
+				"len_sent": {
+					"type": "long"
+				},
+				"lent_recv": {
+					"type": "long"
+				},
+				"method_sent": {
+					"type": "string"
+				},
+				"headers_sent": {
+					"type": "object",
+					"dynamic": true
+				},
+				"headers_recv": {
+					"type": "object",
+					"dynamic": true
+				}																																															
+				
+			}
+			
+		}
+	}
+}
