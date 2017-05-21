@@ -80,21 +80,24 @@ class Elastic(object):
     def store_heartbeats_experiment(self, stream_sets, mergable_info, exp_id):
 
         heartbeats = {}
-        for merge_dst in mergable_info:
-            best_match = mergable_info[merge_dst]["best_match"]
-            matches = mergable_info[merge_dst]["matches"]
 
-            if best_match not in heartbeats:
+        for dst, stream_set in stream_sets.iteritems():
+
+            if dst not in mergable_info:
 
                 heartbeat = {
-                    "dst": best_match,
+                    "dst": dst,
                     "stream_keys": [
-                        s_key.get("id") for s_key in stream_sets[best_match]
-                    ],
+                        s_key.get("id") for s_key in stream_sets[dst]
+                        ],
                     "likely": []
                 }
 
-                heartbeats[best_match] = heartbeat
+                heartbeats[dst] = heartbeat
+
+        for merge_dst in mergable_info:
+            best_match = mergable_info[merge_dst]["best_match"]
+            matches = mergable_info[merge_dst]["matches"]
 
             likely_related = {
                 "dst": merge_dst,
