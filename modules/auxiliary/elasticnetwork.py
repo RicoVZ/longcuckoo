@@ -351,14 +351,14 @@ class ElasticNetwork(Auxiliary):
         self.pcap_header = None
         self.es = None
 
-        conf = Config("auxiliary")
-        es_server = str(conf.elasticnetwork.elasticsearch_server)
+        conf = Config("reporting")
+        es_server = str(conf.elasticsearch.elasticsearch_server)
 
         if es_server is None:
             log.error("Missing elasticsearch server in auxiliary config")
             return
 
-        Elasticsearch("http://%s" % es_server, timeout=30)
+        self.es = Elasticsearch("http://%s" % es_server, timeout=30)
 
         self.pcap_path = os.path.join(CUCKOO_ROOT, "storage", "analyses",
                                       str(self.task.id), "dump.pcap")

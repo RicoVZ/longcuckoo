@@ -1,9 +1,12 @@
 from elasticsearch import Elasticsearch
 
+from lib.cuckoo.common.config import Config
 
 class Elastic(object):
-    def __init__(self, server):
-        self.es = Elasticsearch("http://%s" % server, timeout=30)
+    def __init__(self):
+        conf = Config("reporting")
+        es_server = conf.elasticsearch.elasticsearch_server
+        self.es = Elasticsearch("http://%s" % es_server, timeout=30)
 
     def search(self, match=None,body=None, size=10000, fields="*"):
 

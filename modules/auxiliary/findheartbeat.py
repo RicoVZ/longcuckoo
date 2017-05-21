@@ -72,13 +72,7 @@ class FindHeartbeat(Auxiliary):
                       " module is disabled")
             return
 
-        es_server = str(conf.findheartbeat.elasticsearch_server)
-
-        if es_server is None:
-            log.error("Missing elasticsearch server in auxiliary config")
-            return
-
-        self.es = Elastic(es_server)
+        self.es = Elastic()
 
         th = threading.Thread(target=self._run_thread)
         th.start()
