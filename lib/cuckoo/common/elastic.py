@@ -161,5 +161,5 @@ class Elastic(object):
             }
         )
 
-        return result["aggregation"]["max_id"]["value"]
+        return result["aggregations"]["max_id"]["value"]
 
