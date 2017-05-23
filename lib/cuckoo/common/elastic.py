@@ -1,6 +1,7 @@
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 
 from lib.cuckoo.common.config import Config
+
 
 class Elastic(object):
     def __init__(self):
@@ -77,15 +78,24 @@ class Elastic(object):
 
         return results
 
-    def store_heartbeats_experiment(self, stream_sets, mergable_info, exp_id):
+    def store_heartbeats_experiment(self, stream_sets, mergable_info, exp_id,
+                                    previous_ids):
 
         heartbeats = {}
+        ids_stored = []
 
         for dst, stream_set in stream_sets.iteritems():
 
             if dst not in mergable_info:
 
+                id = "%s-%s" % (exp_id, dst)
+                ids_stored.append(id)
+
                 heartbeat = {
+                    "_index": "heartbeats",
+                    "_type": "heartbeats",
+                    "_id": id,
+                    "exp_id": exp_id,
                     "dst": dst,
                     "stream_keys": [
                         s_key.get("id") for s_key in stream_sets[dst]
@@ -109,15 +119,47 @@ class Elastic(object):
 
             heartbeats[best_match]["likely"].append(likely_related)
 
-        body = {
-                "heartbeats": [
-                    suspect_sets for dst, suspect_sets in heartbeats.iteritems()
-                ]
-        }
+        body = [suspect_sets for dst, suspect_sets in heartbeats.iteritems()]
 
-        self.es.index(
-            index="heartbeats",
-            doc_type="heartbeats",
-            id=exp_id,
-            body=body
+        helpers.bulk(self.es, body)
+
+        # Check if any heartbeats that were previously stored are now
+        # merged into another destination. Removed those if found
+        diff = set(previous_ids) - set(ids_stored)
+        if len(diff) > 0:
+            print("deleting %s " % diff)
+            delete = []
+            for id in diff:
+                delete.append({
+                    "_op_type": "delete",
+                    "_index": "heartbeats",
+                    "_type": "heartbeats",
+                    "_id": id
+                })
+
+            helpers.bulk(self.es, delete)
+
+        return ids_stored
+
+    def get_last_exp_stream_id(self, exp_id):
+
+        result = self.es.search(
+            size=0,
+            index="packet",
+            doc_type="packet",
+            body={
+                "query": {
+                    "match": {
+                        "exp_id": exp_id
+                    }
+                },
+                "aggs" : {
+                    "max_id" : {
+                        "max" : { "field" : "stream_id" }
+                    }
+                }
+            }
         )
+
+        return result["aggregation"]["max_id"]["value"]
+

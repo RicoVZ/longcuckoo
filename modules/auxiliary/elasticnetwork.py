@@ -16,6 +16,7 @@ from lib.cuckoo.common.abstracts import Auxiliary
 from lib.cuckoo.common.config import Config
 from lib.cuckoo.common.constants import CUCKOO_ROOT
 from lib.cuckoo.common.objects import NetworkData
+from lib.cuckoo.common.elastic import Elastic
 
 
 log = logging.getLogger(__name__)
@@ -289,10 +290,6 @@ class PacketFilter(object):
 
 class ElasticNetwork(Auxiliary):
 
-    def _store_bulk_es(self, collection):
-        helpers.bulk(self.es, collection)
-        log.debug("Stored set of filtered packets in Elasticsearch")
-
     def _run_filters(self):
         pfilter = PacketFilter(self.pcap_path, file_offset=self.pcap_offset,
                                pcap_glob_header=self.pcap_header)
@@ -306,12 +303,16 @@ class ElasticNetwork(Auxiliary):
 
         log.debug(
             "Preparing extracted packets for bulk submission to Elasticsearch")
+
+        pfilter.packets.sort(lambda networkdata: networkdata.timestamp,
+                             reverse=False)
         while current < len(pfilter.packets):
             count = 0
             bulk_packets = []
             # Use 'current' to keep track of current packet
             # Needed to continue after breaking and submitting
             for n in range(current, len(pfilter.packets)):
+                pfilter.packets[n].stream_id = self.last_stream_id + 1
                 packet = json.loads(pfilter.packets[n].get_json("packet",
                                                                 "packet",
                                                                 self.task.experiment_id,
@@ -319,13 +320,21 @@ class ElasticNetwork(Auxiliary):
                 bulk_packets.append(packet)
                 count += 1
                 current += 1
+                self.last_stream_id += 1
                 if count >= self.max_per_bulk:
                     break
 
             if len(bulk_packets) > 0:
-                self._store_bulk_es(bulk_packets)
+                helpers.bulk(self.es.es, bulk_packets)
+                log.debug("Stored set of filtered packets in Elasticsearch")
 
     def _run_thread(self):
+
+        last_id = self.es.get_last_exp_stream_id(self.task.experiment_id)
+        if last_id is None:
+            self.last_stream_id = 0
+        else:
+            self.last_stream_id = last_id
 
         while self.running:
             # Start with a sleep to let TCPdump collect some traffic first
@@ -350,6 +359,7 @@ class ElasticNetwork(Auxiliary):
         self.max_per_bulk = 250
         self.pcap_header = None
         self.es = None
+        self.last_stream_id = None
 
         conf = Config("reporting")
         es_server = str(conf.elasticsearch.elasticsearch_server)
@@ -358,7 +368,7 @@ class ElasticNetwork(Auxiliary):
             log.error("Missing elasticsearch server in auxiliary config")
             return
 
-        self.es = Elasticsearch("http://%s" % es_server, timeout=30)
+        self.es = Elastic()
 
         self.pcap_path = os.path.join(CUCKOO_ROOT, "storage", "analyses",
                                       str(self.task.id), "dump.pcap")

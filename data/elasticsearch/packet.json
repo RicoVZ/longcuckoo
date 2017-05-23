@@ -8,6 +8,9 @@
 				"task_id": {
 					"type": "long"
 				},
+				"stream_id": {
+					"type": "long"
+				},
 				"exp_id": {
 					"type": "long"
 				},

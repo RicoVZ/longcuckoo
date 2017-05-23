@@ -280,7 +280,7 @@ class NetworkData(object):
         self._fields = [
             "src", "dst",
             "sport", "dport", "length", "protocol",
-            "data"
+            "data", "stream_id"
         ]
         self.timestamp = None
         self.src = None
@@ -290,6 +290,7 @@ class NetworkData(object):
         self.length = None
         self.protocol = None
         self.data = None
+        self.stream_id = None
 
     def add_attr(self, field, data):
         self._fields.append(field)
