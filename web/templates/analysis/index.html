@@ -23,6 +23,7 @@
                     <th>MD5</th>
                     <th>Status</th>
                     <th>Data</th>
+                    <th>View possible heartbeats</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -70,6 +71,7 @@
                                 <a class="btn btn-primary disabled" href="#"><span class="glyphicon glyphicon-download"></span> pcap - unavailable</a>
                             {% endif %}
                         </td>
+                    <td><a class="btn btn-primary" href="{% url "heartbeat.views.index" analysis.experiment.id %}"><span class="glyphicon glyphicon-transfer"></span> View heartbeats</a></td>
 
                     </tr>
                 {% endfor %}

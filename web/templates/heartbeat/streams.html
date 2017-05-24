@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load timetags %}
+    <div class="tab-content">
+    <div class="tab-pane fade in active" id="files">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Streams likely related to <a href="{% url "heartbeat.views.heartbeats" info.exp_id info.parent %}">{{ info.parent }}</a> </h3>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="col-md-1">Source IP</th>
+                    <th class="col-md-1">Destination IP</th>
+                    <th class="col-md-1">Destination port</th>
+                    <th class="col-md-1">Protocol</th>
+                    <th class="col-md-1">Bytes sent</th>
+                    <th class="col-md-1">Bytes received</th>
+                    <th class="col-md-1">Timestamp</th>
+                    <th class="col-md-1">Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td>{{ result.src }}</td>
+                        <td>{{ result.dst }}</td>
+                        <td>{{ result.dport }}</td>
+                        <td>{{ result.protocol}}</td>
+                        <td>
+                            {% if result.len_sent %}
+                                {{ result.len_sent }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if result.len_recv %}
+                                {{ result.len_recv }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </td>
+                        <td>{{ result.timestamp | epoch_datetime}}</td>
+                        <td><a class="btn btn-primary" href="{% url "heartbeat.views.view_stream" result.id %}">View stream <span class="glyphicon glyphicon-info-sign"></span></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if info.last_id %}
+            <a class="btn btn-primary" href="{% url "heartbeat.views.show_network_streams" info.exp_id info.parent info.current info.last_id %}">Next <span class="glyphicon glyphicon-arrow-right"></span></a>
+        {% else %}
+            <a class="btn btn-primary disabled" href="#">Next <span class="glyphicon glyphicon-arrow-right"></span></a>
+        {% endif %}
+    </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="tab-content">
+    <div class="tab-pane fade in active" id="files">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Streams likely related to {{ results.dst }}</h3>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="col-md-1">Host</th>
+                    <th class="col-md-1">Number of streams</th>
+                    <th>Matched metadata</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in results.likely %}
+                    <tr>
+                        <td><a href="{% url "heartbeat.views.show_network_streams" results.exp_id results.dst result.dst 1 %}">{{ result.dst }}</a></td>
+                        <td>{{ result.stream_keys | length }}</td>
+                        <td>
+                            |{% for match in result.matches %}
+                                 <b>{{ match.match_type }}</b>: {{ match.value }} |
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+{% endblock %}

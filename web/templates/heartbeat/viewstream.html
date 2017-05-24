@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load timetags %}
+    <div class="tab-content">
+    <div class="tab-pane fade in active" id="files">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Stream for destination {{ results.dst }} at {{ results.timestamp | epoch_datetime }}</h3>
+            </div>
+        </div>
+    {% if results.protocol == "http" %}
+    <div class="container">
+    <div class="row">
+        <div class="col-sm-2">
+            <p><b>Source IP</b></p>
+                {{ results.src }}
+        </div>
+        <div class="col-sm-2">
+            <p><b>Destination IP</b></p>
+                {{ results.dst }}
+        </div>
+        <div class="col-sm-2 border">
+            <p><b>Source port</b></p>
+            {{ results.sport }}
+        </div>
+        <div class="col-sm-2 border-0">
+            <p><b>Destination port</b></p>
+            {{ results.dport }}
+        </div>
+         <div class="col-sm-2 border-0">
+            <p><b>HTTP method</b></p>
+            {{ results.method_sent }}
+        </div>
+         <div class="col-sm-2 border-0">
+            <p><b>HTTP status</b></p>
+            {{ results.status_recv}}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-10">
+            <p><b>HTTP URI</b></p>
+            {{ results.uri_sent }}
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-6">
+            <p><b>Headers sent</b></p>
+        <ul>
+            {% for key, value in results.headers_sent.items %}
+                <li>{{ key }} : {{ value }}</li>
+            {% endfor %}
+        </ul>
+        </div>
+        <div class="col-sm-6">
+            <p><b>Headers received</b></p>
+            <ul>
+                {% for key, value in results.headers_recv.items %}
+                    <li>{{ key }} : {{ value }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-12">
+            <p><b>HTTP body sent</b></p>
+            <pre>{{ results.body_sent }}</pre>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-12">
+            <p><b>HTTP body received</b></p>
+            <pre>{{ results.body_recv }}</pre>
+        </div>
+    </div>
+</div>
+        {% else %}
+        <div class="panel-body">Viewing protocol {{ results.procol }} not supported (yet)</div>
+    {% endif %}
+    </div>
+    </div>
+{% endblock %}

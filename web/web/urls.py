@@ -10,4 +10,5 @@ urlpatterns = patterns("",
     url(r"^submit/", include("submission.urls")),
     url(r"^file/(?P<category>\w+)/(?P<object_id>\w+)/$", "analysis.views.file"),
     url(r"^dashboard/", include("dashboard.urls")),
+    url(r"^heartbeat/", include("heartbeat.urls")),
 )

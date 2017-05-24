@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="tab-content">
+    <div class="tab-pane fade in active" id="files">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Possible heartbeats</h3>
+            </div>
+        {% if results %}
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Host</th>
+                    <th>Number of streams</th>
+                    <th>Likely related destinations</th>
+                    <th>View related destinations</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for result in results %}
+                    <tr>
+                        <td><a href="{% url "heartbeat.views.show_network_streams" result.exp_id result.dst result.dst 1 %}">{{ result.dst }}</a></td>
+                        <td>{{ result.stream_keys | length }}</td>
+                        <td>{{ result.likely | length }}</td>
+                        <td><a class="btn btn-primary" href="{% url "heartbeat.views.heartbeats" result.exp_id result.dst %}">View related <span class="glyphicon glyphicon-info-sign"></span></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="panel-body">No possible heartbeats found</div>
+        {% endif %}
+        </div>
+    </div>
+    </div>
+{% endblock %}
