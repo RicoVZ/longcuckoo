@@ -37,8 +37,10 @@ class FindHeartbeat(Auxiliary):
             self.summarize_handler.summarize_stream_sets(hb_suspects)
             mergables = self.summarize_handler.get_merge_info(hb_suspects)
 
-            self.es.store_heartbeats_experiment(hb_suspects, mergables,
-                                                self.task.experiment_id)
+            self.stored_previous = self.es.store_heartbeats_experiment(
+                                    hb_suspects, mergables,
+                                    self.task.experiment_id, self.stored_previous
+                                )
 
     def _group_by_dst(self, all_data):
         """"
@@ -64,6 +66,7 @@ class FindHeartbeat(Auxiliary):
         self.es = None
         self.summarize_handler = SummarizeHandler()
         self.filter_handler = FilterHandler(self.task.experiment_id)
+        self.stored_previous = []
 
         conf = Config("auxiliary")
 

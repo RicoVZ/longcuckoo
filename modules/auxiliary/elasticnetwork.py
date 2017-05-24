@@ -304,7 +304,7 @@ class ElasticNetwork(Auxiliary):
         log.debug(
             "Preparing extracted packets for bulk submission to Elasticsearch")
 
-        pfilter.packets.sort(lambda networkdata: networkdata.timestamp,
+        pfilter.packets.sort(key=lambda networkdata: networkdata.timestamp,
                              reverse=False)
         while current < len(pfilter.packets):
             count = 0
