@@ -35,7 +35,7 @@ class FindHeartbeat(Auxiliary):
             self.filter_handler.filter_streams(hb_suspects)
 
             self.summarize_handler.summarize_stream_sets(hb_suspects)
-            mergables = self.summarize_handler.get_merge_info(hb_suspects)
+            mergables = self.summarize_handler.get_merge_info()
 
             self.stored_previous = self.es.store_heartbeats_experiment(
                                     hb_suspects, mergables,
