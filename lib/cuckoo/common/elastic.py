@@ -163,3 +163,24 @@ class Elastic(object):
 
         return result["aggregations"]["max_id"]["value"]
 
+    def get_heartbeat_ids_exp(self, exp_id):
+
+        res = self.es.search(
+            index="heartbeats",
+            doc_type="heartbeats",
+            size=10000,
+            _source_include="_id",
+            body={
+                "query": {
+                    "match": {
+                        "exp_id": exp_id
+                    }
+                }
+            }
+        )
+
+        ids = [
+            hb_id.get("id") for hb_id in self.filter_source(res, keep_id=True)
+        ]
+
+        return ids

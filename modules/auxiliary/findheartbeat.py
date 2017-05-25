@@ -15,6 +15,12 @@ class FindHeartbeat(Auxiliary):
 
     def _run_thread(self):
 
+        # Retrieve old ES ids before running. We do this so they can be
+        # updated if they have changed
+        self.stored_previous = self.es.get_heartbeat_ids_exp(
+            self.task.experiment_id
+        )
+
         while self.running:
             log.debug("Waiting 3 minutes for traffic to be collected")
             time.sleep(180)
