@@ -22,25 +22,8 @@ class FindHeartbeat(Auxiliary):
             if not self.running:
                 break
 
-            # Retrieve all network data such that heartbeats with
-            # a lot of time between them can also be found.
+            self._find_heartbeat()
 
-            hb_suspects = self.es.filter_source(
-                self.es.get_new_streams(self.task.experiment_id),
-                keep_id=True
-            )
-            hb_suspects = self._group_by_dst(hb_suspects)
-
-            # Use filters to remove any unwanted streams
-            self.filter_handler.filter_streams(hb_suspects)
-
-            self.summarize_handler.summarize_stream_sets(hb_suspects)
-            mergables = self.summarize_handler.get_merge_info()
-
-            self.stored_previous = self.es.store_heartbeats_experiment(
-                                    hb_suspects, mergables,
-                                    self.task.experiment_id, self.stored_previous
-                                )
 
     def _group_by_dst(self, all_data):
         """"
@@ -58,6 +41,27 @@ class FindHeartbeat(Auxiliary):
                 host_traffic[dst].append(result)
 
         return host_traffic
+
+    def _find_heartbeat(self):
+        # Retrieve all network data such that heartbeats with
+        # a lot of time between them can also be found.
+
+        hb_suspects = self.es.filter_source(
+            self.es.get_new_streams(self.task.experiment_id),
+            keep_id=True
+        )
+        hb_suspects = self._group_by_dst(hb_suspects)
+
+        # Use filters to remove any unwanted streams
+        self.filter_handler.filter_streams(hb_suspects)
+
+        self.summarize_handler.summarize_stream_sets(hb_suspects)
+        mergables = self.summarize_handler.get_merge_info()
+
+        self.stored_previous = self.es.store_heartbeats_experiment(
+            hb_suspects, mergables,
+            self.task.experiment_id, self.stored_previous
+        )
 
     def start(self):
         log.info("FindHeartbeat auxiliary module started")
@@ -82,4 +86,5 @@ class FindHeartbeat(Auxiliary):
 
     def stop(self):
         self.running = False
+        self._find_heartbeat()
         log.info("FindHeartbeat auxiliary module stopped")
