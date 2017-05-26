@@ -90,7 +90,13 @@ class SummarizeHandler(object):
                 0: 1
             }
         },
-        "http_len_recv": {"default": 10}
+        "http_len_recv": {"default": 10},
+        "content_type_recv": {
+            "default": 2,
+            "special": {
+                "application/octet-stream": 50
+            }
+        }
 
     }
 
@@ -389,6 +395,16 @@ class SummarizeHTTP(Summarize):
             self.summary.add_value(
                 "user_agent_browser", self._is_browser(user_agent)
             )
+
+    def read_headers_received(self):
+
+        headers_received = self.stream.get("headers_recv")
+
+        if headers_received is None:
+            return
+
+        self.add_to_summary("content-type", headers_received,
+                            "content_type_recv")
 
     def _is_browser(self, user_agent):
         """
