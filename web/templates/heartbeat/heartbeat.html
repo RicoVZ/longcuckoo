@@ -22,7 +22,14 @@
                         <td>{{ result.stream_keys | length }}</td>
                         <td>
                             |{% for match in result.matches %}
-                                 <b>{{ match.match_type }}</b>: {{ match.value }} |
+                            <b>{{ match.match_type }}</b>:
+                            {% if match.score <= 5 %}
+                               <span class="text-info" title="Match type: {{ match.match_type }} - Match score: {{ match.score }}">{{ match.value }}</span>
+                            {% elif match.score <= 15 %}
+                                <span class="text-warning" title="Match type: {{ match.match_type }} - Match score: {{ match.score }}">{{ match.value }}</span>
+                            {% else %}
+                                <span class="text-danger" title="Match type: {{ match.match_type }} - Match score: {{ match.score }}">{{ match.value }}</span>
+                            {% endif %}|
                             {% endfor %}
                         </td>
                     </tr>
