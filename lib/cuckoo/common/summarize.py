@@ -46,7 +46,7 @@ class SummarizeHandler(object):
         "uri_end": {
             "default": 5,
             "special": {
-                "*.php": 20,
+                "*.php": 50,
                 "*.exe": 50,
                 "*.bin": 50,
                 "*.dll": 50
@@ -55,7 +55,7 @@ class SummarizeHandler(object):
         "uri_contains_file": {"default": 1},
         "uri_exts": {"default": 2},
         "uri_dir": {"default": 10},
-        "post_field": {"default": 15},
+        "post_field": {"default": 20},
         "num_post_fields": {"default": 10},
         "num_get_params": {"default": 2},
         "tcp_dport": {
@@ -66,7 +66,15 @@ class SummarizeHandler(object):
             }
         },
         "http_host": {"default": 100},
-        "content_type_sent": {"default": 10},
+        "http_method": {
+            "default": 1,
+            "special": {
+                "POST": 5,
+                "PUT": 10,
+                "DELETE": 10
+            }
+        },
+        "content_type_sent": {"default": 20},
         "user_agent": {"default": 50},
         "user_agent_browser": {
             "default": 1,
@@ -74,8 +82,8 @@ class SummarizeHandler(object):
                 False: 20
             }
         },
-        "tcp_len_sent": {"default": 10},
-        "tcp_len_recv": {"default": 10},
+        "tcp_len_sent": {"default": 2},
+        "tcp_len_recv": {"default": 2},
         "http_len_sent": {
             "default": 10,
             "special": {
@@ -87,8 +95,8 @@ class SummarizeHandler(object):
     }
 
     # The minimum amount of matches for a merge
-    min_matches = 2
-    min_score = 10
+    min_matches = 3
+    min_score = 20
 
     def __init__(self):
         self.summaries = {}
@@ -168,7 +176,6 @@ class SummarizeHandler(object):
                     best_match = to_dst
                     matches = result[1]
 
-            # print("Best match(%s) for: %s is -> %s. Matches: %s" % (highest, compare_dst, best_match, matches))
             if best_match is not None and len(matches) >= self.min_matches \
                     and highest >= self.min_score:
                 best_matches.append(best_match)
@@ -204,18 +211,25 @@ class SummarizeHandler(object):
             if compare_data is None:
                 continue
 
+            # Find each matching value in the summary
+            # and get the score for each match
             for value in summary.summary[field]:
                 if value in compare_data:
 
+                    value_score = self.scores[field].get("default")
                     special = self.scores[field].get("special")
+
                     if special is not None:
+
                         for spec_str in special:
                             if fnmatch.fnmatch(str(value), str(spec_str)):
-                                score += special[spec_str]
-                    else:
-                        score += self.scores[field]["default"]
+                                value_score = special[spec_str]
 
-                    matches.append({"match_type": field, "value": value})
+                    score += value_score
+                    matches.append({
+                        "match_type": field, "value": value,
+                        "score": value_score
+                    })
 
         return score, matches
 
@@ -287,8 +301,12 @@ class SummarizeHTTP(Summarize):
             "body_sent": self.read_body_sent,
             "len_sent": self.read_len_sent,
             "len_recv": self.read_len_received,
-            "headers_sent": self.read_headers_sent
+            "headers_sent": self.read_headers_sent,
+            "method_sent": self.read_method_sent
         }
+
+    def read_method_sent(self):
+        self.add_to_summary("method_sent", self.stream, "http_method")
 
     def read_len_sent(self):
         self.add_to_summary("len_sent", self.stream, "http_len_sent")
