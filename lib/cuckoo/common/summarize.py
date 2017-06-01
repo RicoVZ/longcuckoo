@@ -42,7 +42,7 @@ class SummarizeHandler(object):
     # special cases can be created by adding the key 'special'
     # The wildcards * and ? can be used in special cases
     scores = {
-        "get_params": {"default": 2},
+        "get_params": {"default": 5},
         "uri_end": {
             "default": 5,
             "special": {
@@ -102,7 +102,7 @@ class SummarizeHandler(object):
 
     # The minimum amount of matches for a merge
     min_matches = 3
-    min_score = 20
+    min_score = 10
 
     def __init__(self):
         self.summaries = {}
