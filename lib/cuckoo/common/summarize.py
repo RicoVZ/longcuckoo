@@ -177,7 +177,7 @@ class SummarizeHandler(object):
                 result = self.calc_score_summary(compare_summary, to_summary)
                 score = result[0]
 
-                if score > highest:
+                if score >= highest:
                     highest = score
                     best_match = to_dst
                     matches = result[1]
@@ -356,7 +356,9 @@ class SummarizeHTTP(Summarize):
             self.summary.add_value("uri_exts", uri_end.split(".", 1)[1])
 
         if len(parts) > 1:
-            self.summary.add_value("uri_dir", parts[0])
+            dirs = filter(None, parts[0].split("/"))
+            for dir in dirs:
+                self.summary.add_value("uri_dir", dir)
 
     def read_body_sent(self):
 
